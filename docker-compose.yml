@@ -1,0 +1,73 @@
+version: '3.8'
+services:
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: some-rabbit
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: MarketDb
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: Sup3rP455W0RD
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8090:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: Sup3rP455W0RD
+    depends_on:
+      - mongo
+  rabbit_sender:
+    build:
+      context: .
+      dockerfile: RabbitMQSender/Dockerfile
+    container_name: RabbitSender
+    stdin_open: true
+    tty: true
+    depends_on: 
+      - rabbit
+  rabbit_seller:
+    build:
+      context: . 
+      dockerfile: RabbitMQSeller/Dockerfile
+    container_name: RabbitSeller
+    stdin_open: true
+    tty: true
+    depends_on: 
+      - rabbit
+      - mongo
+  rabbit_buyer:
+    build:
+      context: . 
+      dockerfile: RabbitMQBuyer/Dockerfile
+    container_name: RabbitBuyer
+    stdin_open: true
+    tty: true
+    depends_on: 
+      - rabbit
+      - mongo
+  rabbit_logger:
+    build:
+      context: .
+      dockerfile: RabbitMQLogger/Dockerfile
+    container_name: RabbitLog
+    stdin_open: true
+    tty: true
+    depends_on: 
+      - rabbit
+      - rabbit_seller
+      - rabbit_buyer
+      - rabbit_sender
+      - mongo  

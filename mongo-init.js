@@ -1,0 +1,1 @@
+db.Ressources.insert({"Name": "dagger", "Price": "25"})
