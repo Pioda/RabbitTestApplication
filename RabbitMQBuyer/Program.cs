@@ -19,6 +19,7 @@ namespace RabbitMQBuyer
 #endif
                 UserName = ConnectionFactory.DefaultUser,  
                 Password = ConnectionFactory.DefaultPass,  
+                ClientProvidedName = "Buyer",
                 Port = AmqpTcpEndpoint.UseDefaultPort  
             };  
             using var connection = factory.CreateConnection();
@@ -27,7 +28,7 @@ namespace RabbitMQBuyer
 
             using var logChannel = connection.CreateModel();
             logChannel.ExchangeDeclare(exchange: "log", type: ExchangeType.Fanout);
-            var logQueue = logChannel.QueueDeclare().QueueName;
+            var logQueue = logChannel.QueueDeclare("BuyerQ", true, false, false).QueueName;
             logChannel.QueueBind(logQueue, "log", "");
 
             var queueName = channel.QueueDeclare().QueueName;

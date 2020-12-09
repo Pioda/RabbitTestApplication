@@ -20,6 +20,7 @@ namespace RabbitMQReceiver
 #endif
                 UserName = ConnectionFactory.DefaultUser,  
                 Password = ConnectionFactory.DefaultPass,  
+                ClientProvidedName = "Seller",
                 Port = AmqpTcpEndpoint.UseDefaultPort  
             };  
             using var connection = factory.CreateConnection();
@@ -31,7 +32,7 @@ namespace RabbitMQReceiver
 
             using var logChannel = connection.CreateModel();
             logChannel.ExchangeDeclare(exchange: "log", type: ExchangeType.Fanout);
-            var logQueue = logChannel.QueueDeclare().QueueName;
+            var logQueue = logChannel.QueueDeclare("SellerQ", true, false, false).QueueName;
             logChannel.QueueBind(logQueue, "log", "");
 
             Console.WriteLine($"Queue [{queueName}] is waiting for messages.");

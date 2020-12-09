@@ -22,6 +22,7 @@ namespace RabbitMQSender
 #endif                
                 UserName = ConnectionFactory.DefaultUser,
                 Password = ConnectionFactory.DefaultPass,
+                ClientProvidedName = "Sender",
                 Port = AmqpTcpEndpoint.UseDefaultPort
             };
             using var connection = factory.CreateConnection();

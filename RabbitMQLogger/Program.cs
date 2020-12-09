@@ -19,13 +19,14 @@ namespace RabbitMQLogger
 #endif
                 UserName = ConnectionFactory.DefaultUser,  
                 Password = ConnectionFactory.DefaultPass,  
+                ClientProvidedName = "Logger",
                 Port = AmqpTcpEndpoint.UseDefaultPort  
             };  
             using var connection = factory.CreateConnection();
             using var logChannel = connection.CreateModel();
             logChannel.ExchangeDeclare(exchange: "log", type: ExchangeType.Fanout);
 
-            var logQueue = logChannel.QueueDeclare().QueueName;
+            var logQueue = logChannel.QueueDeclare("LoggerQ", true, false, false).QueueName;
             logChannel.QueueBind(queue: logQueue, exchange: "log", routingKey: "");
 
             Console.WriteLine($"Queue [{logQueue}] is waiting for messages.");
